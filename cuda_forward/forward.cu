@@ -181,32 +181,58 @@ inline int do_serial_cuda_forward(std::vector<int>& edge_tail_start_index, std::
 __device__ int insect(int* beg1, int* end1, int* beg2, int* end2)
 {
 	int ret = 0;
+	int node1 = *beg1;
+	int node2 = *beg2;
 	while (beg1 != end1 && beg2 != end2){
-		if (*beg1 == *beg2){
-			ret++;
-			beg1++;
-			beg2++;
+		//if (node1 == node2){
+		//	ret++;
+		//}
+		//if (node1 <= node2){
+		//	node1 = *++beg1;
+		//}
+		//if(node1 >= node2){
+		//	node2 = *++beg2;
+		//}
+
+		//vari
+		//if (node1 == node2){
+		//	ret++;
+		//	node1 = (*++beg1);
+		//	node2 = (*++beg2);
+		//}
+		//else if (node1 < node2){
+		//	node1 = (*++beg1);
+		//}
+		//else{
+		//	node2 = (*++beg2);
+		//}
+
+		if (node1 < node2){
+			node1 = *++beg1;
 		}
-		else if (*beg1 < *beg2){
-			beg1++;
+		else if (node1 > node2){
+			node2 = *++beg2;
 		}
 		else{
-			beg2++;
+			node1 = *++beg1;
+			node2 = *++beg2;
+			ret++;
 		}
 	}
 	return ret;
 }
 
-__global__ void kernel_counting(int* index, size_t index_len, int* head, size_t head_len, int* tail, int* result)
+__global__ void kernel_counting(int* index, int* head, size_t head_len, int* tail, int* result, int block_idx_offset = 0)
 {
-	int idx = blockDim.x * blockIdx.x + threadIdx.x;
-	int step = gridDim.x * blockDim.x;
+	int idx = blockDim.x * (blockIdx.x + block_idx_offset) + threadIdx.x;
+	//int step = gridDim.x * blockDim.x;
 	int h, t;
-	for (; idx < head_len; idx += step){
+	//for (; idx < head_len; idx += step){
+	if (idx >= head_len)return;
 		h = head[idx];
 		t = tail[idx];
 		result[idx] += insect(head + index[h], head + index[h + 1], head + index[t], head + index[t + 1]);
-	}
+	//}
 }
 
 int cuda_count_triangle(int* dev_index, size_t index_len, int* dev_head, size_t head_len, int* dev_tail, int* dev_result)
@@ -214,13 +240,42 @@ int cuda_count_triangle(int* dev_index, size_t index_len, int* dev_head, size_t 
 	int ret = 0;
 	int thread = 256;
 	int block = (head_len - 1) / thread + 1;
+	//const int max_con_kernel = 1;
+	//cudaStream_t stream[max_con_kernel];//max concurrent kernl in compute capability 3.0
+	//for (size_t i = 0; i < max_con_kernel; i++){
+	//	checkCudaErrors(cudaStreamCreate(&stream[i]));
+	//}
+	//block = (block - 1) / max_con_kernel + 1;
 	CpuTime ct;
 	ct.startTimer();
-	kernel_counting<<<block, thread>>>(dev_index, index_len, dev_head, head_len, dev_tail, dev_result);
-	checkCudaErrors(cudaGetLastError());
-	checkCudaErrors(cudaDeviceSynchronize());
+	cudaEvent_t start, stop;
+	checkCudaErrors(cudaEventCreate(&start));
+	checkCudaErrors(cudaEventCreate(&stop));
+	cudaEventRecord(start, 0);
+	kernel_counting << <block, thread >> >(dev_index, dev_head, head_len, dev_tail, dev_result);
+	cudaEventRecord(stop, 0);
+	cudaEventSynchronize(stop);
+	float time = 0;
+	cudaEventElapsedTime(&time, start, stop);
+	
+
+	//checkCudaErrors(cudaFuncSetCacheConfig(kernel_counting, cudaFuncCachePreferL1));
+	//for (size_t i = 0; i < max_con_kernel; i++){
+		//kernel_counting<<<block, thread, 0, stream[i]>>>(dev_index, dev_head, head_len, dev_tail, dev_result, i * block);
+		//checkCudaErrors(cudaGetLastError());
+	//}
+	
+	//checkCudaErrors(cudaDeviceSynchronize());
 	ret = thrust::reduce(thrust::device_ptr<int>(dev_result), thrust::device_ptr<int>(dev_result + head_len));
+	std::cout << "time profiled by cudaEvent: " << time / 1000 << "s" << std::endl;
 	ct.stopAndPrint("!!!cuda_count_triangle!!!");
+	checkCudaErrors(cudaEventDestroy(start));
+	checkCudaErrors(cudaEventDestroy(stop));
+
+
+	//for (size_t i = 0; i < max_con_kernel; i++){
+	//	checkCudaErrors(cudaStreamDestroy(stream[i]));
+	//}
 	return ret;
 }
 
@@ -233,21 +288,21 @@ int para_cuda_forward(std::vector<int>& index, std::vector<int>& head, std::vect
 	int* result;
 
 	cudaStream_t stream1;
-	cudaStream_t stream2;
+	//cudaStream_t stream2;
 	CpuTime ct;
 	ct.startTimer();
 	checkCudaErrors(cudaStreamCreate(&stream1));
-	checkCudaErrors(cudaStreamCreate(&stream2));
+	//checkCudaErrors(cudaStreamCreate(&stream2));
 	checkCudaErrors(cudaMalloc((void**)&result, sizeof(int) * (head.size()) ));
 	checkCudaErrors(cudaMemsetAsync(result, 0, sizeof(int) * (head.size()), stream1));
 
 	checkCudaErrors(cudaMalloc((void**)&dev_index, sizeof(int) * index.size()));
 	checkCudaErrors(cudaMemcpyAsync(dev_index, index.data(), sizeof(int) * index.size(), cudaMemcpyHostToDevice, stream1));
 	checkCudaErrors(cudaMalloc((void**)&dev_head, sizeof(int) * head.size()));
-	checkCudaErrors(cudaMemcpyAsync(dev_head, head.data(), sizeof(int) * head.size(), cudaMemcpyHostToDevice, stream2));
+	checkCudaErrors(cudaMemcpyAsync(dev_head, head.data(), sizeof(int) * head.size(), cudaMemcpyHostToDevice, stream1));
 	checkCudaErrors(cudaMalloc((void**)&dev_tail, sizeof(int) * tail.size()));
-	checkCudaErrors(cudaMemcpyAsync(dev_tail, tail.data(), sizeof(int) * tail.size(), cudaMemcpyHostToDevice, stream2));
-
+	checkCudaErrors(cudaMemcpyAsync(dev_tail, tail.data(), sizeof(int) * tail.size(), cudaMemcpyHostToDevice, stream1));
+	checkCudaErrors(cudaStreamDestroy(stream1));
 	checkCudaErrors(cudaDeviceSynchronize());
 	ct.stopAndPrint("@@@copy to device done");
 

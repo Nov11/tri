@@ -1,15 +1,6 @@
-﻿Build started 2015/5/3 0:24:46.
+﻿Build started 2015/5/4 1:12:19.
      1>Project "D:\Documents\Visual Studio 2013\Projects\cuda_forward\cuda_forward\cuda_forward.vcxproj" on node 2 (Build target(s)).
-     1>AddCudaCompileDeps:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /DWIN32 /DNDEBUG /D_CONSOLE /D_MBCS /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\include" /I. /FIcuda_runtime.h /c "D:\Documents\Visual Studio 2013\Projects\cuda_forward\cuda_forward\forward.cu" 
-       CudaBuild:
-         Compiling CUDA source file forward.cu...
-         cmd.exe /C "C:\Users\tomato\AppData\Local\Temp\tmp99719c19b9aa4883bd208681d1d8d850.cmd"
-         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2013 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\include"     --keep-dir Release -maxrregcount=0  --machine 32 --compile -cudart static -Xcompiler /wd4819     -DWIN32 -DNDEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o Release\forward.cu.obj "D:\Documents\Visual Studio 2013\Projects\cuda_forward\cuda_forward\forward.cu"
-         
-         D:\Documents\Visual Studio 2013\Projects\cuda_forward\cuda_forward>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2013 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\include"     --keep-dir Release -maxrregcount=0  --machine 32 --compile -cudart static -Xcompiler /wd4819     -DWIN32 -DNDEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o Release\forward.cu.obj "D:\Documents\Visual Studio 2013\Projects\cuda_forward\cuda_forward\forward.cu" 
-         forward.cu
-       ClCompile:
+     1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.0\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source.cpp
          Source.cpp
      1>Source.cpp(118): warning C4244: 'initializing' : conversion from 'std::streamoff' to 'size_t', possible loss of data
@@ -31,4 +22,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:12.90
+Time Elapsed 00:00:02.03

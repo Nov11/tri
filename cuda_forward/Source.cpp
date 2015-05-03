@@ -405,7 +405,9 @@ int main()
 											, serial_reverse_edge_foward, serial_cuda_forward
 											, serial_cuda_forward_without_tail, cuda_forward 
 											};
-	for (auto& i : functions){
-		serial_test(file, result, item, i);
-	}
+	//for (auto& i : functions){
+	//	serial_test(file, result, item, i);
+	//}
+	serial_test(file, result, item, cuda_forward);
+
 }
