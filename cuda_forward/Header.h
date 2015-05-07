@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <fstream>
+#include <unordered_map>
 
 struct OriEdgeList{
 	std::vector<std::pair<int, int>> edges;
@@ -29,4 +30,6 @@ void make_adj_list_cuda(OriEdgeList& oel, AdjList& adjl);
 int cuda_forward(std::ifstream& ifs);
 int serial_cuda_forward(std::ifstream& ifs);
 int serial_cuda_forward_without_tail(std::ifstream& ifs);
+void preprocess(std::ifstream& ifs, std::vector<int>& edge_tail_start_index, std::vector<int>& edge_head);
+void preprocessOnCuda(std::ifstream& ifs);
 #endif

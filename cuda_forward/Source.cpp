@@ -392,22 +392,22 @@ void serial_test(string& file, int result[], int item, int(*func)(ifstream& ifs)
 int main()
 {
 	int result[] = { 667129, 28769868, 177820130 };
-	string file_name[] = { "com-amazon.ungraph.txt", "as-skitter.txt", "com-lj.ungraph.txt" };
+	string file_name[] = { "com-amazon.ungraph.txt", "as-skitter.txt", "com-lj.ungraph.txt" ,"com-orkut.ungraph.txt"};
 	//edges 925872 11095298 34681189
 	//nodes	334863 1696415  3997962
 	string file_path = "f:\\triangle\\";
 
-	int item = 2;
+	int item = 0;
 	string file = file_path + file_name[item];
 	//serial_forward(file, result, item);
 	//cuda_forward(file, result, item);
-	vector<int(*)(ifstream& ifs)> functions = { serial_forward, serial_compact_forward
+	vector<int(*)(ifstream& ifs)> functions = {serial_forward, serial_compact_forward
 											, serial_reverse_edge_foward, serial_cuda_forward
 											, serial_cuda_forward_without_tail, cuda_forward 
 											};
-	//for (auto& i : functions){
-	//	serial_test(file, result, item, i);
-	//}
-	serial_test(file, result, item, cuda_forward);
+	for (auto& i : functions){
+		serial_test(file, result, item, i);
+	}
+	//serial_test(file, result, item, cuda_forward);
 
 }
